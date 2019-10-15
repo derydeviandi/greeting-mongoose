@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
+const bcrypt = require('bcrypt')
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -61,6 +62,23 @@ const userSchema = new mongoose.Schema({
         set: val => parseInt(val),
         default: 0, // karena tidak wajib diisi, maka harus punya nilai default, default disini di set menjadi 0
     },
+})
+
+// MEMBUAT FUNCTION YG AKAN DIJALANKAN SEBELUM PROSES SAVE()
+// Harus dibuat dibawah schema, dan ti atas mongoose.model
+
+userSchema.pre('save', async function (next) {
+    // Mengubah password yg diinput dari user kedalam bentuk lain
+    let user = this
+
+    // Hash password
+    let hash = await bcrypt.hash(user.password, 8)
+
+    user.password = hash
+
+    // Untuk kemudian menjalankan save
+    next()
+
 })
 
 const User = mongoose.model('User', userSchema)
