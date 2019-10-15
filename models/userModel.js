@@ -81,6 +81,31 @@ userSchema.pre('save', async function (next) {
 
 })
 
+// Create Login Function
+userSchema.statics.login = async (email, password) => {
+
+    // Mencari user berdasarkan email
+    let user = await User.findOne({ email })
+
+    // Jika user tidak ditemukan
+    // Akan ada di catch()
+    if (!user) {
+        throw new Error(`User dengan email ${email} tidak ditemukan`)
+    }
+
+    // Bandingkan password input dari input user dengan yg ada di database
+    // param1 inputan user, param2 yg ada di database
+    // result = true or false
+    let result = await bcrypt.compare(password, user.password)
+
+    if (!result) {
+        throw new Error("Password belum benar")
+    }
+
+    // Akan ada di then(). resp
+    return user
+}
+
 const User = mongoose.model('User', userSchema)
 
 module.exports = User

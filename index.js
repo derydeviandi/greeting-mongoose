@@ -1,7 +1,8 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const User = require('./models/userModel')
-const bcrypt = require('bcrypt')
+const Task = require('./models/taskModel')
+// const bcrypt = require('bcrypt')
 
 const app = express()
 const port = 2019
@@ -24,6 +25,8 @@ mongoose.connect(
 
 // Agar API dapat memproses json
 app.use(express.json())
+
+// USER ROUTER
 
 // CREATE ONE USER
 app.post('/users', (req, res) => {
@@ -77,10 +80,53 @@ app.delete('/users/:userid', async (req, res) => {
         res.send(resp)
 
     } catch (error) {
-        res.send(err)
+        res.send(error)
     }
 })
 
+// LOGIN USER WITH EMAIL DAN PASSWORD
+app.post('/users/login', (req, res) => {
+
+    try {
+        let user = User.login(req.body.email, req.body.password)
+        res.send(user)
+    } catch (error) {
+        res.send(error.message)
+    }
+
+    // User.login(req.body.email, req.body.password)
+    //     .then(resp => {
+    //         res.send({
+    //             condition: Success,
+    //             pesan: resp
+    //         })
+    //     }).catch(err => {
+    //         res.send({
+    //             condition: "Can't Login",
+    //             pesan: error.message
+    //         })
+    //     })
+
+})
+
 // UPDATE BY ID
+
+// TASK ROUTER
+
+// CREATE TASK
+app.post('/tasks', async (req, res) => {
+
+    try {
+        let task = new Task(req.body)
+        let resp = await task.save()
+
+        res.send(resp)
+    } catch (error) {
+        res.send(error.message)
+    }
+
+})
+
+// UPDATE TASK
 
 app.listen(port, () => { console.log(`Running at ${port}`) })
