@@ -1,7 +1,40 @@
 const express = require('express')
 const router = new express.Router()
+const multer = require('multer')
 
 const User = require('../models/userModel')
+
+// MULTER CONF
+const upload = multer({
+    limits: {
+        fileSize: 1000000 // max 1 MegaBytes
+    },
+    fileFilter(req, file, callback) {
+        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+            callback(new Error('Format file harus jpg / png / jpeg'))
+        }
+        callback(null, true)
+    }
+})
+
+// UPLOAD AVATAR
+router.post('/users/avatar/:userid', upload.single('avatar'), async (req, res) => {
+    // file gambar nanti akan ada di 'req.file.buffer'
+
+    try {
+        // resize lebar gambar : 250px, extention file .png
+        let buffer = await sharp(req.file.buffer).resize({ width: 250 }).png().toBuffer()
+        let user = await User.findById(req.params.user)
+        // user {obj, name , ... , avatar}
+        user.avatar = buffer
+
+        await user.save()
+        res.send("Upload Success")
+    } catch (error) {
+        res.send("Cannot Upload")
+    }
+
+})
 
 // USER ROUTER
 
@@ -47,6 +80,50 @@ router.get('/users/:userid', async (req, res) => {
     // User.findById(req.params.userid)
     //     .then((user) => { res.send(user) })
     //     .catch((error) => { res.send(error) })
+})
+
+// UPDATE PROFIE
+router.patch('/users/:userid', async (req, res) => {
+    // filtering
+    let updates = Object.keys(req.body) // didalam req.body ada {name, email, ..}
+
+    // req.body = {name, email, age}
+    let allowedUpdates = ['name', 'email', 'password', 'age']
+
+    let result = updates.every(updates => { return allowedUpdates.includes(updates) })
+
+    // Jika ada field yg akan diedit selain [ 'name', 'email', 'password', 'age']
+    if (!result) {
+        return res.send({ err: 'Invalid Request' })
+    }
+
+    try {
+        let user = await User.findById(req.params.userid)
+        // update user
+        user.name = req.body.name
+        user.email = req.body.email
+        user.password = req.body.password
+        user.age = req.body.age
+
+        // updates = ['name, email. password, 'age']
+        // user = {name, email, password, age}
+        updates.forEach((val) => { user[val] = req.body[val] })
+
+        /* 
+            val = 'name'
+
+            user['name'] = req.body['name']
+        
+        
+        */
+        await user.save()
+
+        res.send(user)
+
+    } catch (error) {
+        res.send(error)
+    }
+
 })
 
 // DELETE ONE BY ID

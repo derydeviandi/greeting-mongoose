@@ -62,6 +62,15 @@ const userSchema = new mongoose.Schema({
         set: val => parseInt(val),
         default: 0, // karena tidak wajib diisi, maka harus punya nilai default, default disini di set menjadi 0
     },
+    avatar: { // Menyimpan image dalam bentuk binary
+        type: Buffer
+    },
+    tasks: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Task'
+    }]
+}, {
+    timestamps: true
 })
 
 // MEMBUAT FUNCTION YG AKAN DIJALANKAN SEBELUM PROSES SAVE()

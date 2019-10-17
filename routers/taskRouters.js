@@ -1,24 +1,58 @@
 const express = require('express')
-const router = new express.Router()
+const router = express.Router()
+
 const Task = require('../models/taskModel')
-
-
-// TASK ROUTER
+const User = require('../models/userModel')
 
 // CREATE TASK
-router.post('/tasks', async (req, res) => {
+router.post('/tasks/:userid', async (req, res) => {
 
     try {
-        let task = new Task(req.body)
-        let resp = await task.save()
+        let user = await User.findById(req.params.userid)
+        let task = new Task({
+            description: req.body.description,
+            owner: user._id
+        })
 
-        res.send(resp)
+        // task = {_id, description, completed}
+
+        // Simpan id task yang baru ke array tasks pada user
+        user.tasks.push(task._id)
+
+        // Simpan user dan task ke database
+        await user.save()
+        await task.save()
+
+        res.send({
+            owner: {
+                name: user.name,
+                id: user._id
+            },
+            createdTask: {
+                description: task.description,
+                id: task._id,
+                owner: task.owner
+            }
+        })
+
     } catch (error) {
-        res.send(error.message)
+
+
     }
 
 })
 
+// READ ALL OWN TASK
+router.get('/tasks/:userid', async (req, res) => {
+    try {
+        // user = {-id, name, ... , tasks}
+        let resp = await User.find({ _id: req.params.userid }).populate({ path: 'tasks' }).exec()
+
+        res.send(resp[0].tasks)
+    } catch (error) {
+        res.send(error)
+    }
+})
 // UPDATE TASK
 router.patch('/tasks/:taskid', async (req, res) => {
     try {

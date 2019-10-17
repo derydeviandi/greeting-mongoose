@@ -24,7 +24,8 @@ mongoose.connect(
     }
 )
 
-// Agar API dapat memproses json
+// Agar API dapat memproses 
+app.use(express.json())
 app.use(userRouter)
 app.use(taskRouter)
 
