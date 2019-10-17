@@ -1,6 +1,7 @@
 const express = require('express')
 const router = new express.Router()
 const multer = require('multer')
+const sharp = require('sharp')
 
 const User = require('../models/userModel')
 
@@ -24,15 +25,31 @@ router.post('/users/avatar/:userid', upload.single('avatar'), async (req, res) =
     try {
         // resize lebar gambar : 250px, extention file .png
         let buffer = await sharp(req.file.buffer).resize({ width: 250 }).png().toBuffer()
-        let user = await User.findById(req.params.user)
+        let user = await User.findById(req.params.userid)
         // user {obj, name , ... , avatar}
         user.avatar = buffer
 
         await user.save()
         res.send("Upload Success")
     } catch (error) {
-        res.send("Cannot Upload")
+        res.send(error)
     }
+
+})
+
+// READ AVATAR
+router.get('/users/avatar/:userid', async (req, res) => {
+
+    try {
+        let user = await User.findById(req.params.userid)
+
+        // Secara default content-type adalah json, kita ubah menjadi iamge karena akan mengirim sebuah gambar
+        res.set('Content-Type', 'image/png')
+        res.send(user.avatar)
+    } catch (error) {
+        res.send(error)
+    }
+
 
 })
 
