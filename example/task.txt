@@ -5,3 +5,6 @@
 
 task day 3
 1. di bagian usermodel, password tidak boleh mengandung 'password'
+
+task day 4
+1. menghapus task

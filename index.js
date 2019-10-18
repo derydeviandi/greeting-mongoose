@@ -6,8 +6,8 @@ const taskRouter = require('./routers/taskRouters')
 // const bcrypt = require('bcrypt')
 
 const app = express()
-const port = 2019
-const URL = 'mongodb://127.0.0.1:27017/bdg-mongoose'
+const port = process.env.PORT || 2019 // Port heroku atau localhost
+const URL = 'mongodb+srv://derydev:pothead420@bdg-mongoose-1yoog.mongodb.net/bdg-mongoose?retryWrites=true&w=majority'
 
 mongoose.connect(
     URL,

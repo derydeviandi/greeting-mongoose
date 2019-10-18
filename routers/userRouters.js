@@ -88,8 +88,10 @@ router.get('/users/:userid', async (req, res) => {
 
     try {
         const resp = await User.findById(req.params.userid)
-
-        res.send(resp)
+        res.send({
+            user,
+            avatar: `http://localhost:2019/users/avatar/${req.params.userid}`
+        })
     } catch (err) {
         res.send(err)
     }

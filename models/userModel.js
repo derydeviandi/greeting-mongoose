@@ -73,6 +73,19 @@ const userSchema = new mongoose.Schema({
     timestamps: true
 })
 
+// toJSON adalah function yg akan runnng sebelum function 'send()' pada object 'res'
+userSchema.method.toJson = function () {
+    // Untuk mengakses user
+    let user = this.toObject()
+
+    delete user.password
+    delete user.avatar
+    delete user.tasks
+
+    return user
+
+}
+
 // MEMBUAT FUNCTION YG AKAN DIJALANKAN SEBELUM PROSES SAVE()
 // Harus dibuat dibawah schema, dan ti atas mongoose.model
 
