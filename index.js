@@ -29,4 +29,8 @@ app.use(express.json())
 app.use(userRouter)
 app.use(taskRouter)
 
+app.get('/', () => {
+    res.send(`<h1>API Running at ${port}</h1>`)
+})
+
 app.listen(port, () => { console.log(`Running at ${port}`) })
