@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt = require('bcrypt')
+const uniqueValidator = require('mongoose-unique-validator')
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -127,6 +128,12 @@ userSchema.statics.login = async (email, password) => {
     // Akan ada di then(). resp
     return user
 }
+
+userSchema.plugin(uniqueValidator, { message: "{PATH} '{VALUE}'sudah digunakan" })
+// username : derydeviandi
+// username = {PATH}, derydeviandi = {VALUE}
+// {PATH} adalah field yg mengalami duplikat data
+// {VALUE} adalah data yg dikirim oleh user
 
 const User = mongoose.model('User', userSchema)
 

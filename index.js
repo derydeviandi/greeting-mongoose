@@ -1,5 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const cors = require('cors')
+
 const userRouter = require('./routers/userRouters')
 const taskRouter = require('./routers/taskRouters')
 
@@ -7,10 +9,10 @@ const taskRouter = require('./routers/taskRouters')
 
 const app = express()
 const port = process.env.PORT || 2019 // Port heroku atau localhost
-const URL = 'mongodb+srv://derydev:pothead420@bdg-mongoose-1yoog.mongodb.net/bdg-mongoose?retryWrites=true&w=majority'
-
+const URL_HEROKU = 'mongodb+srv://derydev:pothead420@bdg-mongoose-1yoog.mongodb.net/bdg-mongoose?retryWrites=true&w=majority'
+const URL_LOCAL = 'mongodb://127.0.0.1:27017/bdg-mongoose'
 mongoose.connect(
-    URL,
+    URL_LOCAL,
     {
         // Menggunakan url parser yang baru
         useNewUrlParser: true,
@@ -26,6 +28,7 @@ mongoose.connect(
 
 // Agar API dapat memproses 
 app.use(express.json())
+app.use(cors())
 app.use(userRouter)
 app.use(taskRouter)
 
