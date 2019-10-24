@@ -12,7 +12,7 @@ const port = process.env.PORT || 2019 // Port heroku atau localhost
 const URL_HEROKU = 'mongodb+srv://derydev:pothead420@bdg-mongoose-1yoog.mongodb.net/bdg-mongoose?retryWrites=true&w=majority'
 const URL_LOCAL = 'mongodb://127.0.0.1:27017/bdg-mongoose'
 mongoose.connect(
-    URL_LOCAL,
+    URL_HEROKU,
     {
         // Menggunakan url parser yang baru
         useNewUrlParser: true,

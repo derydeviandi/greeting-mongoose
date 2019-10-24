@@ -10,11 +10,14 @@ const upload = multer({
     limits: {
         fileSize: 1000000 // max 1 MegaBytes
     },
-    fileFilter(req, file, callback) {
-        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
-            callback(new Error('Format file harus jpg / png / jpeg'))
+    fileFilter(req, file, cb) {
+        let result = file.originalname.match(/\.(jpg|jpeg|png)$/)
+
+        // Filtering berdasarkan extention file(.jpg. png.jpeg)
+        if (!result) {
+            cb(new Error('Format file harus jpg / png / jpeg'))
         }
-        callback(null, true)
+        cb(null, true)
     }
 })
 
@@ -112,7 +115,12 @@ router.get('/users/:userid', async (req, res) => {
 })
 
 // UPDATE PROFIE
-router.patch('/users/:userid', async (req, res) => {
+router.patch('/users/:userid', upload.single('avatar'), async (req, res) => {
+
+    if (!req.body.password) {
+        delete req.body.password
+    }
+
     // filtering
     let updates = Object.keys(req.body) // didalam req.body ada {name, email, ..}
 
@@ -129,24 +137,15 @@ router.patch('/users/:userid', async (req, res) => {
     try {
         let user = await User.findById(req.params.userid)
         // update user
-        user.name = req.body.name
-        user.email = req.body.email
-        user.password = req.body.password
-        user.age = req.body.age
-
         // updates = ['name, email. password, 'age']
         // user = {name, email, password, age}
         updates.forEach((val) => { user[val] = req.body[val] })
-
-        /* 
-            val = 'name'
-
-            user['name'] = req.body['name']
-        
-        
-        */
+        // edit data untuk image
+        let buffer = await sharp(req.file.buffer).resize({ width: 250 }).png().toBuffer()
+        user.avatar = buffer
+        // save setelah edit
         await user.save()
-
+        // kirim ke client(react, postman)
         res.send(user)
 
     } catch (error) {
@@ -168,29 +167,16 @@ router.delete('/users/:userid', async (req, res) => {
 })
 
 // LOGIN USER WITH EMAIL DAN PASSWORD
-router.post('/users/login', (req, res) => {
+router.post('/users/login', async (req, res) => {
 
     try {
-        let user = User.login(req.body.email, req.body.password)
+        let user = await User.login(req.body.email, req.body.password)
         res.send(user)
     } catch (error) {
         res.send({
             error: error.message
         })
     }
-
-    // User.login(req.body.email, req.body.password)
-    //     .then(resp => {
-    //         res.send({
-    //             condition: Success,
-    //             pesan: resp
-    //         })
-    //     }).catch(err => {
-    //         res.send({
-    //             condition: "Can't Login",
-    //             pesan: error.message
-    //         })
-    //     })
 
 })
 
